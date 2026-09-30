@@ -18,6 +18,7 @@ mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
 cp "$RUNNER_TEMP/profile.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
 xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release -destination 'generic/platform=iOS' -archivePath build/Whiteout.xcarchive DEVELOPMENT_TEAM="$IOS_TEAM_ID" CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY='Apple Distribution' PROVISIONING_PROFILE_SPECIFIER="$NAME" archive
 EXPORT_METHOD=ad-hoc
-if xcodebuild -help 2>&1 | grep -q 'release-testing'; then EXPORT_METHOD=release-testing; fi
+xcodebuild -help > "$RUNNER_TEMP/xcode-help.txt" 2>&1 || true
+if grep -q 'release-testing' "$RUNNER_TEMP/xcode-help.txt"; then EXPORT_METHOD=release-testing; fi
 python3 scripts/export-options.py "$IOS_TEAM_ID" "$NAME" build/ExportOptions.plist "$EXPORT_METHOD"
 xcodebuild -exportArchive -archivePath build/Whiteout.xcarchive -exportPath build/signed -exportOptionsPlist build/ExportOptions.plist

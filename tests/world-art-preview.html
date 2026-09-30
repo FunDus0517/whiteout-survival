@@ -1,0 +1,15 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>世界美术检查 · 余烬</title>
+<style>*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#aebfc4;font:13px -apple-system,BlinkMacSystemFont,sans-serif}canvas{display:block;width:100%;height:100%}nav{position:fixed;top:14px;left:14px;display:flex;gap:6px}button{min-height:44px;background:#203942d9;color:#e4eee8;border:1px solid #edf6f32b;border-radius:12px;padding:0 16px}output{position:fixed;bottom:15px;left:20px;background:#233e45d9;color:#e4eee8;border-radius:9px;padding:8px 12px}</style>
+<canvas aria-label="世界美术场景"></canvas><nav><button data-region="camp">营地</button><button data-region="city">城市</button><button data-region="forest">森林</button><button data-region="mountain">山区</button></nav><output>统一地面、人物、丧尸和物资预览 · 不读写存档</output>
+<script src="../world-data.js"></script><script src="../world-art.js"></script><script>
+const world=WhiteoutWorld,art=WhiteoutArt.create({mapLayout:'world',width:world.WIDTH,height:world.HEIGHT}),canvas=document.querySelector('canvas'),c=canvas.getContext('2d');
+const centers={camp:{x:900,y:3000},city:{x:4400,y:3050},forest:{x:1450,y:1400},mountain:{x:4750,y:1650}};let mode='camp',center=centers.camp;
+const nodes=world.CACHES.map(n=>({...n,remaining:5}));
+document.querySelector('nav').addEventListener('click',e=>{if(!e.target.dataset.region)return;mode=e.target.dataset.region;center=centers[mode];document.querySelector('output').textContent=e.target.textContent+' · 统一地面、人物、丧尸和物资预览 · 不读写存档';});
+function draw(t){const d=Math.min(1.5,devicePixelRatio||1),w=innerWidth,h=innerHeight;if(canvas.width!==Math.round(w*d)||canvas.height!==Math.round(h*d)){canvas.width=Math.round(w*d);canvas.height=Math.round(h*d);}c.setTransform(d,0,0,d,0,0);const zoom=.9;c.scale(zoom,zoom);c.translate(w/zoom/2-center.x,h/zoom/2-center.y);const bounds={x:center.x-w/zoom/2,y:center.y-h/zoom/2,w:w/zoom,h:h/zoom};art.drawGround(c,bounds);
+const visible=art.structures.filter(s=>s.x<bounds.x+bounds.w+180&&s.x+(s.w||90)>bounds.x-180&&s.y<bounds.y+bounds.h+180&&s.sortY>bounds.y-180).map(s=>({y:s.sortY,draw:()=>art.drawStructure(c,s)}));
+nodes.filter(n=>Math.abs(n.x-center.x)<w/zoom&&Math.abs(n.y-center.y)<h/zoom).forEach(n=>visible.push({y:n.y,draw:()=>art.drawNode(c,n,t,false)}));
+visible.push({y:center.y,draw:()=>art.drawActor(c,{x:center.x,y:center.y,angle:.6,health:100,moving:false},'player',t)});
+if(mode!=='camp'){for(let i=0;i<3;i++){const enemy={x:center.x+85+i*58,y:center.y+30+i*40,angle:-2,health:60,moving:true,state:'wander'};visible.push({y:enemy.y,draw:()=>art.drawActor(c,enemy,'zombie',t)});}}
+visible.sort((a,b)=>a.y-b.y).forEach(s=>s.draw());requestAnimationFrame(draw);}requestAnimationFrame(draw);
+</script></html>

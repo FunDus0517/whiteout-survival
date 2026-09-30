@@ -1,0 +1,8 @@
+{
+  "appId":"com.fundus0517.whiteout",
+  "appName":"余烬",
+  "webDir":"dist",
+  "backgroundColor":"#1b2d3a",
+  "ios":{"contentInset":"never","scrollEnabled":false,"preferredContentMode":"mobile","scheme":"App"},
+  "server":{"iosScheme":"capacitor","hostname":"localhost"}
+}

@@ -1,0 +1,11 @@
+(function(root){'use strict';let context=null,enabled=true,noise=null;
+function unlock(){try{if(!context){const Audio=root.AudioContext||root.webkitAudioContext;if(!Audio)return;context=new Audio();noise=context.createBuffer(1,Math.floor(context.sampleRate*.4),context.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);}if(context.state==='suspended')context.resume().catch(()=>{});}catch(_){}}
+function burst(duration,volume,frequency,type='lowpass',delay=0){if(!context||!noise)return;const t=context.currentTime+delay,s=context.createBufferSource(),f=context.createBiquadFilter(),g=context.createGain();s.buffer=noise;f.type=type;f.frequency.value=frequency;g.gain.setValueAtTime(volume,t);g.gain.exponentialRampToValueAtTime(.0001,t+duration);s.connect(f);f.connect(g);g.connect(context.destination);s.start(t);s.stop(t+duration);}
+function note(frequency,duration,volume,type='sine',delay=0){const t=context.currentTime+delay,s=context.createOscillator(),g=context.createGain();s.type=type;s.frequency.setValueAtTime(frequency,t);s.frequency.exponentialRampToValueAtTime(frequency*.55,t+duration);g.gain.setValueAtTime(volume,t);g.gain.exponentialRampToValueAtTime(.0001,t+duration);s.connect(g);g.connect(context.destination);s.start(t);s.stop(t+duration);}
+function play(kind,variant){if(!enabled)return;unlock();if(!context||context.state!=='running')return;
+if(kind==='step'){if(variant==='indoor'){burst(.09,.07,850);note(120,.1,.035);}else{burst(.2,.13,1900,'highpass');burst(.13,.055,430);}}
+else if(kind==='open'){if(variant==='toolbox'||variant==='medical'){note(760,.3,.035,'triangle');note(1180,.22,.025,'sine',.07);burst(.15,.08,1900);}else if(variant==='drop'){burst(.35,.09,2300,'highpass');}else if(variant==='woodpile'){burst(.2,.1,700);note(180,.12,.035,'triangle',.08);}else{note(145,.3,.045,'triangle');burst(.3,.08,800);note(260,.12,.025,'triangle',.15);}}
+else if(kind==='attack'){burst(.16,.08,1500,'highpass');note(170,.09,.035);}else if(kind==='heal')burst(.3,.045,1800,'highpass');}
+root.WhiteoutAudio={play,unlock,setEnabled(value){enabled=value!==false;},isEnabled:()=>enabled};
+if(typeof document!=='undefined')document.addEventListener('pointerdown',unlock,{passive:true});
+})(typeof window!=='undefined'?window:globalThis);

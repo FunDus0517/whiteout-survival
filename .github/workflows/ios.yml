@@ -1,0 +1,56 @@
+name: Build iOS
+on:
+  workflow_dispatch:
+    inputs:
+      signed:
+        description: Export a signed IPA (requires Apple certificates)
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run ios:sync
+      - name: Select Xcode 26 or newer
+        shell: bash
+        run: |
+          APP=$(python3 -c "import glob,re; apps=glob.glob('/Applications/Xcode_26*.app'); print(max(apps,key=lambda p:tuple(map(int,re.findall(r'[0-9]+',p))),default=''))")
+          if [ -n "$APP" ]; then sudo xcode-select -s "$APP/Contents/Developer"; fi
+          xcodebuild -version
+      - name: Compile device build
+        if: ${{ !inputs.signed }}
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release -destination 'generic/platform=iOS' -derivedDataPath build/device CODE_SIGNING_ALLOWED=NO build
+          mkdir -p build/export
+          ditto -c -k --keepParent build/device/Build/Products/Release-iphoneos/App.app build/export/Whiteout-unsigned-iOS.zip
+      - uses: actions/upload-artifact@v4
+        if: ${{ !inputs.signed }}
+        with:
+          name: Whiteout-unsigned-iOS
+          path: build/export/Whiteout-unsigned-iOS.zip
+      - name: Import signing files and export IPA
+        if: ${{ inputs.signed }}
+        env:
+          IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          IOS_PROFILE_BASE64: ${{ secrets.IOS_PROFILE_BASE64 }}
+          IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: bash scripts/build-signed-ios.sh
+      - uses: actions/upload-artifact@v4
+        if: ${{ inputs.signed }}
+        with:
+          name: Whiteout-signed-IPA
+          path: build/signed/*.ipa
+      - name: Remove temporary signing keychain
+        if: ${{ always() && inputs.signed }}
+        run: security delete-keychain "$RUNNER_TEMP/whiteout-signing.keychain-db" || true

@@ -32,11 +32,14 @@ jobs:
           xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release -destination 'generic/platform=iOS' -derivedDataPath build/device CODE_SIGNING_ALLOWED=NO build
           mkdir -p build/export
           ditto -c -k --keepParent build/device/Build/Products/Release-iphoneos/App.app build/export/Whiteout-unsigned-iOS.zip
+          python3 scripts/package-ios.py build/device/Build/Products/Release-iphoneos/App.app build/export/Whiteout-unsigned.ipa
       - uses: actions/upload-artifact@v4
         if: ${{ !inputs.signed }}
         with:
           name: Whiteout-unsigned-iOS
-          path: build/export/Whiteout-unsigned-iOS.zip
+          path: |
+            build/export/Whiteout-unsigned-iOS.zip
+            build/export/Whiteout-unsigned.ipa
       - name: Import signing files and export IPA
         if: ${{ inputs.signed }}
         env:

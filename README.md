@@ -10,6 +10,8 @@
 
 用 Safari 打开游玩地址并旋转到横屏。也可以通过分享菜单“添加到主屏幕”。首次访问需下载场景资源；离线缓存接管后可离线打开。线上游戏不依赖电脑开机。
 
+手机已有签名软件时，可以在[发行页](https://github.com/FunDus0517/whiteout-survival/releases/latest)下载 Whiteout-unsigned-v1.0.1.ipa，从“文件”导入签名软件，使用自己的有效证书与描述文件签名并安装。这个 IPA 包含真实 arm64 设备应用及离线资源，未经过签名；没有在用户的手机签名软件中验证安装。之后更新使用同一个应用 ID 和签名身份，避免成为另一个应用；保留存档前不要删除旧应用。
+
 优先检查接近大屏 iPhone 的 956 × 440 横屏布局，也检查小屏与电脑。浏览器视口检查不能替代 iPhone 17 Pro Max 真机上的帧率、发热、扬声器与 Safari 工具栏测试，没有宣称所有机型均已验收。
 
 ## 操作
@@ -56,7 +58,7 @@ npm test
 npm run ios:sync
 ```
 
-在 Mac 上用 Xcode 打开工程并构建。GitHub 的 Build iOS 工作流可以生成设备平台未签名 App 编译包，不能直接安装到 iPhone。
+在 Mac 上用 Xcode 打开工程并构建。GitHub 的 Build iOS 工作流生成设备平台未签名 App 编译包和标准 Payload/App.app 结构的 IPA；IPA 可导入已有签名软件重新签名，未签名前不能安装到 iPhone。
 
 拥有 Apple Developer 签名材料后，配置以下 GitHub Actions Secrets，手动运行 Build iOS 并勾选 signed：
 
@@ -68,7 +70,7 @@ npm run ios:sync
 | IOS_TEAM_ID | Apple 团队 ID |
 | KEYCHAIN_PASSWORD | 临时构建钥匙串密码 |
 
-脚本校验材料、归档并导出签名 IPA。签名分支尚未用真实证书验证，目前没有提供可安装 IPA。证书和私钥不要提交到公开仓库。[苹果分发说明](https://developer.apple.com/documentation/xcode/distributing-your-app-for-beta-testing-and-releases)介绍了注册设备、TestFlight 和 App Store 的要求。
+脚本校验材料、归档并导出签名 IPA。服务器签名分支尚未用真实证书验证；发行页提供的 IPA 需要使用你已有的签名材料。证书和私钥不要提交到公开仓库。[苹果分发说明](https://developer.apple.com/documentation/xcode/distributing-your-app-for-beta-testing-and-releases)介绍了注册设备、TestFlight 和 App Store 的要求。
 
 ## 开发与验证
 
@@ -76,7 +78,7 @@ npm run ios:sync
 
 - Verify game：规则、兼容检查、网页构建。
 - Deploy game：推送 main 后发布 GitHub Pages。
-- Build iOS：手动运行 macOS 编译；签名材料齐全时可选 IPA。
+- Build iOS：手动运行 macOS 编译，默认生成待重新签名的 IPA；签名材料齐全时可选服务器签名导出。
 - tests 包含规则测试及不读写玩家存档的美术检查页。
 
 建筑、物资、基地、地形、备用角色图集和图标由内置图像生成工具辅助制作，当前人物和丧尸用关节与体积绘制表现行走，提示词保存在 assets/art-v4-prompts.txt 和同目录补充文件。程序负责接地、排序、碰撞、室内切换与动画，未宣称纯手绘或真正三维建模。

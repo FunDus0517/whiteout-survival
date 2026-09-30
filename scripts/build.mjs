@@ -3,7 +3,7 @@ import {resolve,join} from 'node:path';
 const root=resolve(import.meta.dirname,'..'),out=join(root,'dist'),pkg=JSON.parse(await readFile(join(root,'package.json'),'utf8'));
 if(out!==join(root,'dist'))throw Error('Invalid output directory');
 await rm(out,{recursive:true,force:true});await mkdir(join(out,'assets'),{recursive:true});
-const files=['index.html','arena.css','game-shell.css','content.js','world-v3-data.js','world-data.js','world-art-v3.js','world-art.js','actor-volume.js','arena-model.js','engine.js','arena-view.js','audio.js','app.js','updates.js','version.js','manifest.webmanifest'];
+const files=['index.html','arena.css','game-shell.css','content.js','world-v3-data.js','world-data.js','world-art-v3.js','world-art.js','actor-volume.js','building-volume.js','arena-model.js','engine.js','arena-view.js','audio.js','app.js','updates.js','version.js','manifest.webmanifest'];
 const assets=['mark.svg','icon.png','refuge-v4.png','valley-v4.png','actors-v4.png','buildings-v4.png','loot-v4.png','scavenge-depot.png','scavenge-district-v2.png','survivor-zombie-sprites.png'];
 for(const file of [...files,...assets.map(f=>'assets/'+f)])await copyFile(join(root,file),join(out,file));
 const version={version:pkg.version,build:process.env.GITHUB_SHA?.slice(0,8)||'local',releaseUrl:'https://github.com/FunDus0517/whiteout-survival/releases',notes:'独立基地、可进入的房间、冬季河谷、脚印和四档降雪'};

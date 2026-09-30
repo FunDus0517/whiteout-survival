@@ -38,7 +38,7 @@ if(alpha<1){c.save();c.globalAlpha=1-alpha;if(!inside)c.drawImage(roomCanvas(s),
 c.fillStyle='#403c35';c.fillRect(s.x,s.y-22,s.w,27);c.fillStyle='#977c60';c.fillRect(s.x+6,s.y-17,s.w-12,17);line(c,s.x,s.y,s.x+s.w,s.y,'#c8b396',2);line(c,s.x,s.y,s.x,s.y+s.h,'#7b6751',7);line(c,s.x+s.w,s.y,s.x+s.w,s.y+s.h,'#574e45',7);
 const glow=c.createRadialGradient(s.x+s.w*.7,s.y+15,1,s.x+s.w*.7,s.y+15,100);glow.addColorStop(0,'#d7a86629');glow.addColorStop(1,'#d7a86600');c.fillStyle=glow;c.fillRect(s.x,s.y,s.w,s.h);c.restore();}
 if(alpha>.01){const idx=s.kind==='cabin'||s.kind==='house'?0:s.kind==='apartment'?1:s.kind==='clinic'?2:s.kind==='warehouse'?3:s.kind==='station'?5:4;
-ellipse(c,s.x+s.w*.55,s.y+s.h+2,s.w*.55,14,'#1527343f');c.save();c.globalAlpha=alpha;sprite(c,buildings,BUILDING_BOXES,idx,s.x+s.w/2,s.y+s.h+3,s.h*1.83,false,s.w*1.17);c.restore();}
+ellipse(c,s.x+s.w*.55,s.y+s.h+2,s.w*.55,14,'#1527343f');c.save();c.globalAlpha=alpha;if(host.WhiteoutVolumeBuildings)host.WhiteoutVolumeBuildings.draw(c,s,1,typeof performance==='undefined'?0:performance.now());sprite(c,buildings,BUILDING_BOXES,idx,s.x+s.w/2,s.y+s.h+3,s.h*1.83,false,s.w*1.17);c.restore();}
 }
 function drawActor(c,body,kind,time){if(host.WhiteoutVolumeActors&&kind!=='wolf'){host.WhiteoutVolumeActors.draw(c,body,kind,time,base);return;}if(!actors)return;const player=kind==='player',wolf=kind==='wolf',a=body.angle||0,side=Math.abs(Math.cos(a))>.65,back=Math.sin(a)<-.4;
 let index=player?(side?1:back?2:0):(wolf?5:side?4:3);let h=base?88:wolf?36:67;
@@ -54,7 +54,7 @@ c.save();c.translate(n.x,n.y);const shake=effect?Math.sin(progress*18)*(1-progre
 if(effect&&index!==5){c.save();c.translate(0,-18);c.rotate(-progress*.75);c.fillStyle=wood?'#d4c2a0':index===3?'#c5c5b5':'#a18b6b';c.fillRect(-13,-3,26,5);line(c,-12,-3,12,-3,'#e1d8c4',1);c.restore();for(let i=0;i<5;i++)ellipse(c,(i-2)*7*progress,-20-progress*(10+i*3),1.3,1.3,'#e3e8df'+Math.floor((1-progress)*180).toString(16).padStart(2,'0'));}
 if(near&&n.remaining>0){c.strokeStyle='#f7edd0a0';c.lineWidth=1;c.setLineDash([2,5]);c.beginPath();c.ellipse(0,2,23,8,0,0,Math.PI*2);c.stroke();c.setLineDash([]);}c.restore();
 }
-function drawOverview(c,w,h){c.fillStyle='#263b48';c.fillRect(0,0,w,h);if(plate)c.drawImage(plate,0,0,w,h);if(!base){c.save();c.scale(w/run.width,h/run.height);for(const b of world.BUILDINGS){c.fillStyle='#d5d6ca';c.fillRect(b.x,b.y,b.w,b.h);}c.restore();}}
+function drawOverview(c,w,h){c.fillStyle='#263b48';c.fillRect(0,0,w,h);if(plate)c.drawImage(plate,0,0,w,h);if(!base){c.save();c.scale(w/run.width,h/run.height);for(const b of world.BUILDINGS){const i=b.kind==='cabin'||b.kind==='house'?0:b.kind==='apartment'?1:b.kind==='clinic'?2:b.kind==='warehouse'?3:b.kind==='station'?5:4;sprite(c,buildings,BUILDING_BOXES,i,b.x+b.w/2,b.y+b.h,b.h*1.83,false,b.w*1.17);}c.restore();}}
 return{structures,ready,drawGround,drawStructure,drawActor,drawNode,drawOverview,isIndoor:()=>base?run.player.y<450:world.BUILDINGS.some(b=>indoor(b)),dispose(){disposed=true;roomLayers.clear();roofAlpha.clear();}};
 }
 return{create};

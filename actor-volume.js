@@ -14,13 +14,13 @@ function draw(c,b,kind,time,base){
  if(b.health<=0){c.rotate(1.3);c.scale(1,.75);}
  const legs=[-1,1].sort((a,b)=>project(a*5,0,0).y-project(b*5,0,0).y);
  for(const side of legs){const stride=step*side*7,lift=moving?Math.max(0,step*side)*4:0;limb([side*5,0,28],[side*5,stride/2,14+lift],7,'#606663','#273a40');limb([side*5,stride/2,14+lift],[side*5,stride,3+lift],6,'#4b5556','#26383e');box(side*5,stride+2,0,7,12,4+lift,['#243038','#33444c','#152a32','#283e48','#576369']);}
- const cloth=zombie?['#747c77','#424f52']:['#a88b5c','#564e40'];
+ const cloth=zombie?['#747c77','#424f52']:['#88775b','#414844'];
  const back=project(0,-6,34);box(0,-7,31,16,10,22,['#3c5157','#253b45','#4c5c5b','#283a43','#738078']);
  const arms=[-1,1].sort((a,b)=>project(a*12,0,0).y-project(b*12,0,0).y);
  const rear=arms[0];function arm(side){const swing=step*side*5,attack=b.attackCooldown>0?Math.sin(b.attackCooldown*5)*7:0;limb([side*10,0,48],[side*13,swing,35],8,cloth[0],cloth[1]);limb([side*13,swing,35],[side*11,5+swing+attack,25+attack],6,cloth[0],cloth[1]);ellipse(project(side*11,5+swing+attack,24+attack),3.5,3.5,'#293a42');}
  arm(rear);
  const left=project(-9,0,28),right=project(9,0,28),top=project(0,0,53);
- const coat=c.createLinearGradient(left.x-5,top.y,right.x+8,left.y);coat.addColorStop(0,zombie?'#88948a':'#c6ae7b');coat.addColorStop(.35,cloth[0]);coat.addColorStop(1,cloth[1]);c.fillStyle=coat;
+ const coat=c.createLinearGradient(left.x-5,top.y,right.x+8,left.y);coat.addColorStop(0,zombie?'#88948a':'#b0a07a');coat.addColorStop(.35,cloth[0]);coat.addColorStop(1,cloth[1]);c.fillStyle=coat;
  c.beginPath();c.moveTo(top.x-7,top.y);c.quadraticCurveTo(left.x-6,top.y+6,left.x-3,left.y);c.quadraticCurveTo((left.x+right.x)/2,left.y+5,right.x+3,right.y);c.quadraticCurveTo(right.x+5,top.y+6,top.x+7,top.y);c.closePath();c.fill();
  limb([0,4,30],[0,4,48],.8,'#dbceaa7a','#514c3c');box(-6,4,34,5,2,7,[cloth[1],cloth[0],cloth[1],cloth[0],cloth[0]]);
  arm(arms[1]);
